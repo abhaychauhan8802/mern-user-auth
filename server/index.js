@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
+// local imports
+import authRouter from "./routes/auth.route.js";
+
 dotenv.config();
 
 const app = express();
@@ -14,6 +17,9 @@ mongoose
 
 // middlewares
 app.use(express.json());
+
+// routes
+app.use("/api/auth", authRouter);
 
 // error middlewar
 app.use((err, req, res, next) => {
