@@ -24,6 +24,7 @@ export const signUp = async (req, res, next) => {
     if (!validateEmail(email)) {
       return next(errorHandler(400, "Invalid email"));
     }
+    verified;
 
     if (password.length < 6) {
       return next(errorHandler(400, "Password must be 6 character long"));
@@ -49,19 +50,55 @@ export const signUp = async (req, res, next) => {
 
     const { password: _, ...rest } = user._doc;
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
-    });
+    const token = jwt.sign(
+      { id: user._id, verified: user.verified },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     sendToken(email, "Verify Your email", `Your opt is ${verificationToken}`);
 
     res
       .status(200)
       .cookie("access_token", token, {
-        maxAge: 30 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       })
       .json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return next(errorHandler(403, "Code is required"));
+    }
+
+    const user = await User.findOne({
+      verificationToken: code,
+    });
+
+    if (!user) {
+      return next(errorHandler(403, "Invalid verification code"));
+    }
+
+    if (user.verificationTokenExpiresAt < Date.now()) {
+      return next(errorHandler(403, "Expired verification code"));
+    }
+
+    user.verified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+
+    await user.save();
+
+    res.status(200).json("Email verified successfully");
   } catch (error) {
     next(error);
   }
