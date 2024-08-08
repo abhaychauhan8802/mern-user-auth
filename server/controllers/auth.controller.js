@@ -24,7 +24,6 @@ export const signUp = async (req, res, next) => {
     if (!validateEmail(email)) {
       return next(errorHandler(400, "Invalid email"));
     }
-    verified;
 
     if (password.length < 6) {
       return next(errorHandler(400, "Password must be 6 character long"));
@@ -36,8 +35,6 @@ export const signUp = async (req, res, next) => {
       100000 + Math.random() * 900000
     ).toString();
 
-    console.log(verificationToken);
-
     const newUser = new User({
       name,
       email,
@@ -46,12 +43,10 @@ export const signUp = async (req, res, next) => {
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
 
-    const user = await newUser.save();
-
-    const { password: _, ...rest } = user._doc;
+    await newUser.save();
 
     const token = jwt.sign(
-      { id: user._id, verified: user.verified },
+      { id: newUser._id, verified: newUser.verified },
       process.env.JWT_SECRET,
       {
         expiresIn: "7d",
@@ -66,7 +61,13 @@ export const signUp = async (req, res, next) => {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       })
-      .json(rest);
+      .json({
+        ...newUser._doc,
+        password: undefined,
+        verificationToken: undefined,
+        verificationTokenExpiresAt: undefined,
+        resetPasswordToken: undefined,
+      });
   } catch (error) {
     next(error);
   }
@@ -99,6 +100,57 @@ export const verifyEmail = async (req, res, next) => {
     await user.save();
 
     res.status(200).json("Email verified successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signIn = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return next(errorHandler(400, "All fields are required"));
+    }
+
+    const user = await User.findOne(
+      { email },
+      {
+        verificationToken: 0,
+        verificationTokenExpiresAt: 0,
+        resetPasswordToken: 0,
+        resetPasswordTokenExpiresAt: 0,
+      }
+    );
+
+    if (!user) {
+      return next(errorHandler(403, "User not found"));
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+      return next(errorHandler(403, "Invalid email or password"));
+    }
+
+    const token = jwt.sign(
+      { id: user._id, verified: user.verified },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res
+      .status(200)
+      .cookie("access_token", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        ...user._doc,
+        password: undefined,
+      });
   } catch (error) {
     next(error);
   }
