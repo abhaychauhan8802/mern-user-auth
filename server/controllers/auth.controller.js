@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 
 // local import
 import { errorHandler } from "../utils/error.js";
@@ -160,6 +161,78 @@ export const signOut = async (req, res, next) => {
   try {
     res.clearCookie("access_token");
     res.status(200).json("Sign out successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      next(errorHandler(403, "Email is required"));
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return next(errorHandler(403, "User not found"));
+    }
+
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
+
+    await user.save();
+
+    sendToken(
+      email,
+      "Reset Password",
+      `Your can reset your password by go to this link ${process.env.CLIENT_URL}/reset-password/${resetToken}`
+    );
+
+    res.status(200).json("Password reset link send to your email address");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+      return next(errorHandler(403, "Password is required"));
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+    });
+
+    if (!user) {
+      return next(errorHandler(403, "Invalid token"));
+    }
+
+    if (user.resetPasswordTokenExpiresAt < Date.now()) {
+      return next(errorHandler(403, "Token expired"));
+    }
+
+    if (password.length < 6) {
+      return next(errorHandler(400, "Password must be 6 character long"));
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordTokenExpiresAt = undefined;
+
+    await user.save();
+
+    res.status(200).json("Password reset successfully");
   } catch (error) {
     next(error);
   }
