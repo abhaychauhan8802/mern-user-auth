@@ -36,5 +36,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(8080, () => {
-  console.log("Server started..");
+  console.log("Server started on port 8080");
 });

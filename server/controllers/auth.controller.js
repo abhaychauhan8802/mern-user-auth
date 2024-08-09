@@ -68,6 +68,7 @@ export const signUp = async (req, res, next) => {
         verificationToken: undefined,
         verificationTokenExpiresAt: undefined,
         resetPasswordToken: undefined,
+        resetPasswordTokenExpiresAt: undefined,
       });
   } catch (error) {
     next(error);
@@ -80,6 +81,10 @@ export const verifyEmail = async (req, res, next) => {
 
     if (!code) {
       return next(errorHandler(403, "Code is required"));
+    }
+
+    if (code.length !== 6) {
+      return next(errorHandler(403, "Code must be 6 character long only"));
     }
 
     const user = await User.findOne({
@@ -100,7 +105,14 @@ export const verifyEmail = async (req, res, next) => {
 
     await user.save();
 
-    res.status(200).json("Email verified successfully");
+    res.status(200).json({
+      ...user._doc,
+      password: undefined,
+      verificationToken: undefined,
+      verificationTokenExpiresAt: undefined,
+      resetPasswordToken: undefined,
+      resetPasswordTokenExpiresAt: undefined,
+    });
   } catch (error) {
     next(error);
   }

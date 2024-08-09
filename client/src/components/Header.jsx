@@ -126,6 +126,14 @@ const Header = () => {
             Contact Us
           </Link>
         </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link
+            href="/sign-in"
+            className="text-green-600 font-semibold sm:hidden"
+          >
+            Sign In
+          </Link>
+        </NavbarMenuItem>
       </NavbarMenu>
     </Navbar>
   );
