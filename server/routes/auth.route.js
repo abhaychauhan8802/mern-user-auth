@@ -8,6 +8,7 @@ import {
   verifyEmail,
   forgotPassword,
   resetPassword,
+  resendCode,
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 
@@ -18,6 +19,7 @@ router.post("/sign-in", signIn);
 router.post("/sign-out", verifyToken, signOut);
 
 router.post("/verify-email", verifyToken, verifyEmail);
+router.post("/resend-code", verifyToken, resendCode);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 

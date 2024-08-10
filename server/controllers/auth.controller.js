@@ -249,3 +249,28 @@ export const resetPassword = async (req, res, next) => {
     next(error);
   }
 };
+
+export const resendCode = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+
+    await user.save();
+
+    sendToken(
+      user.email,
+      "Verify Your email",
+      `Your opt is ${verificationToken}`
+    );
+
+    res.status(200).json("New otp send to your email address");
+  } catch (error) {
+    next(error);
+  }
+};

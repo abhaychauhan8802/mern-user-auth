@@ -8,6 +8,7 @@ import { authSuccess } from "../redux/slices/userSlice";
 const VerifyEmail = () => {
   const [otp, setOtp] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
+  const [resendSuccess, setResendSuccess] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -43,6 +44,28 @@ const VerifyEmail = () => {
     }
   };
 
+  const handleResend = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/auth/resend-code", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (data.success === false) {
+        return setErrorMessage(data.message);
+      }
+
+      if (res.ok) {
+        setResendSuccess(data);
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
   return (
     <div className="min-h-[90vh] max-w-2xl w-full mx-auto p-6">
       <div className="sm:px-16 md:px-24 mt-20 mb-5">
@@ -56,6 +79,12 @@ const VerifyEmail = () => {
         {errorMessage && (
           <div className="bg-red-300 text-gray-900 my-4 py-3 text-center rounded-lg">
             <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {resendSuccess && (
+          <div className="bg-green-300 text-gray-900 my-4 py-3 text-center rounded-lg">
+            <span>{resendSuccess}</span>
           </div>
         )}
 
@@ -83,6 +112,17 @@ const VerifyEmail = () => {
             Verify Email
           </Button>
         </form>
+        <div className="w-full text-center mt-3">
+          <span>
+            Not receive code?{" "}
+            <button
+              className="text-green-600 hover:text-green-800"
+              onClick={handleResend}
+            >
+              Resend otp
+            </button>
+          </span>
+        </div>
       </div>
     </div>
   );
