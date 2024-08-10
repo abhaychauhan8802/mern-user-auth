@@ -8,12 +8,13 @@ import Dashboard from "./pages/Dashboard";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useSelector((state) => state.user);
 
   if (!currentUser) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/sign-in" replace />;
   }
 
   if (!currentUser.verified) {
@@ -54,6 +55,10 @@ const App = () => {
     <NextUIProvider navigate={navigate}>
       <Header />
       <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<h1>About</h1>} />
+        <Route path="/contact-us" element={<h1>Contact US</h1>} />
+
         <Route
           path="/dashboard"
           element={
@@ -62,11 +67,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<h1>About</h1>} />
-        <Route path="/contact-us" element={<h1>Contact US</h1>} />
-
         <Route
           path="/verify-email"
           element={
@@ -75,7 +75,7 @@ const App = () => {
             </VerifyEmailRedirectIfVerify>
           }
         />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/sign-in"
           element={

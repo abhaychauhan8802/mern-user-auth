@@ -80,7 +80,7 @@ const VerifyEmail = () => {
             }}
           />
           <Button type="submit" className="bg-green-500 text-white w-full">
-            Sign Up
+            Verify Email
           </Button>
         </form>
       </div>

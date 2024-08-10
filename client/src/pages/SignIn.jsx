@@ -85,6 +85,11 @@ const SignIn = () => {
             value={formField.password}
             onChange={handleChange}
           />
+          <div className="w-full text-right -mt-5">
+            <Link className="underline text-foreground" href="/forgot-password">
+              Forget Password?
+            </Link>
+          </div>
           <Button type="submit" className="bg-green-500 text-white">
             Sign In
           </Button>
