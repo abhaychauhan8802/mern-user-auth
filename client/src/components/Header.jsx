@@ -8,18 +8,42 @@ import {
   NavbarMenuItem,
   Button,
   Link,
+  Avatar,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { authSuccess } from "../redux/slices/userSlice";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const { currentUser } = useSelector((state) => state.user);
+
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleClose = () => {
     if (isMenuOpen) {
       setIsMenuOpen(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const res = await fetch("/api/auth/sign-out", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        dispatch(authSuccess(null));
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -70,23 +94,60 @@ const Header = () => {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent justify="end">
-        <NavbarItem className="hidden sm:block">
-          <Button
-            as={Link}
-            href="/sign-in"
-            variant="bordered"
-            className="border-green-500"
-          >
-            Sign In
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} href="/sign-up" className="bg-green-500 text-white">
-            Sign Up
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
+      {currentUser ? (
+        <NavbarContent justify="end">
+          <NavbarItem>
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Avatar
+                  name={currentUser.name}
+                  className="cursor-pointer"
+                  classNames={{
+                    base: "bg-green-100",
+                    name: "font-semibold select-none",
+                  }}
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Static Actions">
+                <DropdownItem>
+                  <Link href="/dashboard" className="w-full" color="foreground">
+                    Profile
+                  </Link>
+                </DropdownItem>
+                <DropdownItem
+                  className="text-danger"
+                  color="danger"
+                  onPress={handleSignOut}
+                >
+                  Sign Out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </NavbarItem>
+        </NavbarContent>
+      ) : (
+        <NavbarContent justify="end">
+          <NavbarItem className="hidden sm:block">
+            <Button
+              as={Link}
+              href="/sign-in"
+              variant="bordered"
+              className="border-green-500"
+            >
+              Sign In
+            </Button>
+          </NavbarItem>
+          <NavbarItem>
+            <Button
+              as={Link}
+              href="/sign-up"
+              className="bg-green-500 text-white"
+            >
+              Sign Up
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+      )}
 
       <NavbarMenu>
         <NavbarMenuItem>
@@ -126,14 +187,16 @@ const Header = () => {
             Contact Us
           </Link>
         </NavbarMenuItem>
-        <NavbarMenuItem>
-          <Link
-            href="/sign-in"
-            className="text-green-600 font-semibold sm:hidden"
-          >
-            Sign In
-          </Link>
-        </NavbarMenuItem>
+        {!currentUser && (
+          <NavbarMenuItem>
+            <Link
+              href="/sign-in"
+              className="text-green-600 font-semibold sm:hidden"
+            >
+              Sign In
+            </Link>
+          </NavbarMenuItem>
+        )}
       </NavbarMenu>
     </Navbar>
   );

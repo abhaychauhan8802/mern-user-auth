@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
-router.post("/sign-out", signOut);
+router.post("/sign-out", verifyToken, signOut);
 
 router.post("/verify-email", verifyToken, verifyEmail);
 router.post("/forgot-password", verifyToken, forgotPassword);
