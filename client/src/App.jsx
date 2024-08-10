@@ -9,6 +9,7 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useSelector((state) => state.user);
@@ -76,6 +77,7 @@ const App = () => {
           }
         />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route
           path="/sign-in"
           element={
