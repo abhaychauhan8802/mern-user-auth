@@ -53,7 +53,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-[90vh] max-w-2xl w-full mx-auto p-6">
+    <div className="min-h-[91vh] max-w-2xl w-full mx-auto p-6">
       <div className="sm:px-16 md:px-24 mt-20 mb-5">
         <div>
           <h2 className="text-3xl text-gray-800 font-semibold">Sign In</h2>

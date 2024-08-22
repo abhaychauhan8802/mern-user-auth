@@ -1,4 +1,4 @@
-import { Button } from "@nextui-org/react";
+import { Button, Link } from "@nextui-org/react";
 import React from "react";
 
 const Home = () => {
@@ -15,7 +15,9 @@ const Home = () => {
           consequatur nesciunt commodi ab esse?
         </p>
       </div>
-      <Button className="bg-green-500 text-white">Get started</Button>
+      <Button as={Link} href="/sign-in" className="bg-green-500 text-white">
+        Get started
+      </Button>
     </div>
   );
 };

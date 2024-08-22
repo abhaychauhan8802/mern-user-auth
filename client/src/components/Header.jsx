@@ -175,7 +175,7 @@ const Header = () => {
               Contact Us
             </Link>
           </NavbarMenuItem>
-          {!currentUser && (
+          {/* {!currentUser && (
             <NavbarMenuItem>
               <Link
                 href="/sign-in"
@@ -184,7 +184,7 @@ const Header = () => {
                 Sign In
               </Link>
             </NavbarMenuItem>
-          )}
+          )} */}
         </NavbarMenu>
       </Navbar>
       <SignOutModel isOpen={isOpen} onClose={onClose} />
