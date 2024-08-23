@@ -31,8 +31,8 @@ This project implements a full-fledged authentication system using the MERN stac
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/mern-auth-project.git
-   cd mern-auth-project
+   git clone https://github.com/abhaychauhan8802/mern-user-auth.git
+   cd mern-user-auth
 
 2. Install the dependencies for both frontend and backend:
     ```bash
